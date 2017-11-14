@@ -1,5 +1,6 @@
 package com.sudhirt.samples.country.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class Country implements Serializable {
     private static final long serialVersionUID = -8680218145560117467L;
 
     @Id
+    @JsonProperty(value = "countryId")
     private String iso3;
     @Column(nullable = false)
     @NotBlank

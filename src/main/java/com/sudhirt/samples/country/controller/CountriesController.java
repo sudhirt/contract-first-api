@@ -26,18 +26,16 @@ public class CountriesController {
     }
 
     @GetMapping
-    public List<Country> get(@RequestParam String countryId, @RequestParam String iso2, @RequestParam String numericCode) {
+    public List<Country> get(@RequestParam(required = false) String iso2, @RequestParam(required = false) String numericCode) {
         List<Country> countries = new ArrayList<>();
-        if (countryId == null && iso2 == null && numericCode == null) {
+        if (iso2 == null && numericCode == null) {
             countries.addAll(countryService.getAll());
             return countries;
         }
         Optional<Country> country;
-        if (countryId != null && iso2 == null && numericCode == null) {
-            country = countryService.getById(countryId);
-        } else if (countryId == null && iso2 != null && numericCode == null) {
+        if (iso2 != null && numericCode == null) {
             country = countryService.getByIso2(iso2);
-        } else if (countryId == null && iso2 == null) {
+        } else if (iso2 == null) {
             country = countryService.getByNumericCode(numericCode);
         } else {
             throw new InvalidInputException("Provide only one input: countryId or iso2 or numericCode");
