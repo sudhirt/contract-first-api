@@ -57,11 +57,13 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>3.8.0</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.oai</groupId>
-            <artifactId>swagger-request-validator-core</artifactId>
+            <artifactId>swagger-request-validator-mockmvc</artifactId>
             <version>${swagger-request-validator.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
