@@ -1,0 +1,281 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "This API defines the contract that publishers and subscribers should adhere to be able to avail notification centre services.",
+    "version" : "1.0.0",
+    "title" : "Notification Centre API",
+    "contact" : {
+      "email" : "mailofsudhir@gmail.com"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host" : "virtserver.swaggerhub.com",
+  "basePath" : "/sudhirtumati/notification_center/1.0.0",
+  "tags" : [ {
+    "name" : "notifications",
+    "description" : "Operations related to publish events"
+  }, {
+    "name" : "registration",
+    "description" : "Operations related to registration"
+  } ],
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/register/publish" : {
+      "post" : {
+        "tags" : [ "registration" ],
+        "summary" : "registers an application as publisher",
+        "description" : "An application can register itself with notification centre as a publisher.\n",
+        "operationId" : "registerPublisher",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "request body",
+          "description" : "publish request object",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/PublisherRegistrationRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "application key issued to the new application by notification centre. Application should use this key to publish events to notification centre.",
+            "schema" : {
+              "$ref" : "#/definitions/RegistrationResponse"
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          },
+          "409" : {
+            "description" : "an application exists with provided name or event type is alrady registered by another application"
+          },
+          "422" : {
+            "description" : "required input parameter missing"
+          }
+        }
+      }
+    },
+    "/register/subscribe" : {
+      "post" : {
+        "tags" : [ "registration" ],
+        "summary" : "registers an application as subscriber",
+        "description" : "An application can register itself with notification centre as a subscriber.",
+        "operationId" : "registerSubscriber",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "request body",
+          "description" : "subscribe request object",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/SubscriberRegistrationRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "application key issued to the new application by notification centre. Application may use this key to validate and confirm that the event is posted by notification centre.",
+            "schema" : {
+              "$ref" : "#/definitions/RegistrationResponse"
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          },
+          "409" : {
+            "description" : "an application exists with provided name"
+          },
+          "422" : {
+            "description" : "required input parameter missing"
+          }
+        }
+      }
+    },
+    "/register/update" : {
+      "post" : {
+        "tags" : [ "registration" ],
+        "summary" : "update an existing registration",
+        "description" : "update event types for an existing registration (can be used by both publishers and consumers)",
+        "operationId" : "updateRegistration",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "X-Auth-Token",
+          "in" : "header",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "registration update request object",
+          "description" : "registration update request object",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/UpdateRegistrationRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "registration updat request successful."
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          },
+          "401" : {
+            "description" : "unauthorized. check the auth token passed as request header"
+          },
+          "422" : {
+            "description" : "required input parameter missing"
+          }
+        }
+      }
+    },
+    "/notify" : {
+      "post" : {
+        "tags" : [ "notifications" ],
+        "summary" : "publish an event to notification centre",
+        "description" : "An application registered as published, can use this service to publish events to notification centre",
+        "operationId" : "publishEvent",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "X-Auth-Token",
+          "in" : "header",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "event request body",
+          "description" : "event publish request object",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/EventPublishRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "event publish request received successfully",
+            "schema" : {
+              "$ref" : "#/definitions/EventPublishResponse"
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          },
+          "401" : {
+            "description" : "unauthorized. check the auth token passed as request header"
+          },
+          "403" : {
+            "description" : "forbidden. event type is not registered"
+          },
+          "422" : {
+            "description" : "required input parameter missing"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "PublisherRegistrationRequest" : {
+      "type" : "object",
+      "required" : [ "name", "produces" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "Application1"
+        },
+        "produces" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "example" : ""
+          },
+          "minItems" : 1
+        }
+      }
+    },
+    "SubscriberRegistrationRequest" : {
+      "type" : "object",
+      "required" : [ "consumes", "name" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "Application1"
+        },
+        "consumes" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "example" : ""
+          },
+          "minItems" : 1
+        }
+      }
+    },
+    "UpdateRegistrationRequest" : {
+      "type" : "object",
+      "required" : [ "eventTypes", "name" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "Application1"
+        },
+        "eventTypes" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "example" : ""
+          },
+          "minItems" : 1
+        }
+      }
+    },
+    "RegistrationResponse" : {
+      "type" : "object",
+      "required" : [ "name" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "Application1"
+        },
+        "auth-token" : {
+          "type" : "string",
+          "example" : "dfadfjsldfsodfoiersdfjldfshflsf;lsdfhsdflsdfls"
+        }
+      }
+    },
+    "EventPublishRequest" : {
+      "type" : "object",
+      "required" : [ "event-timestamp", "event-type", "payload" ],
+      "properties" : {
+        "event-type" : {
+          "type" : "string",
+          "example" : "EVENT_TYPE_1"
+        },
+        "event-timestamp" : {
+          "type" : "string",
+          "format" : "YYYY-mm-DDTHH:MM:SSZ",
+          "example" : "2017-06-01T15:32:30Z"
+        },
+        "payload" : {
+          "type" : "object",
+          "example" : "{\"key1\":\"value1\",\"key2\":\"value2\"}",
+          "properties" : { }
+        }
+      }
+    },
+    "EventPublishResponse" : {
+      "type" : "object",
+      "required" : [ "ack-id" ],
+      "properties" : {
+        "ack-id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "asdffd-asdf-asdf-adfadf-asdf-asdfas"
+        }
+      }
+    }
+  }
+}
